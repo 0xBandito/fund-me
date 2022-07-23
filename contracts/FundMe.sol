@@ -4,16 +4,21 @@ pragma solidity ^0.8.9;
 
 // 2. Imports
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "./PriceConverter.sol";
 
 // 3. Interfaces, Libraries, Contracts
 error FundMe__NotOwner();
 
 contract FundMe {
 
+    // Type Declarations
+    using PriceConverter for uint256;
+
     // State Variables
     uint constant MINIMUM_USD = 50 * 10**18;
     address private immutable i_owner;
     address[] private s_funders;
+    AggregatorV3Interface private s_priceFeed;
     mapping(address => uint) private s_addressToAmountFunded;
 
     // Events
@@ -34,13 +39,14 @@ contract FundMe {
     // 7. private
     // 8. view/pure
 
-    constructor() {
+    constructor(address priceFeed) {
         i_owner = msg.sender;
+        s_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
 // Funds our contracts with ETH
     function fund() payable public {
-        require(msg.value >= MINIMUM_USD, "More ETH required");
+        require(msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD, "More ETH required");
         s_addressToAmountFunded[msg.sender] += msg.value;
         s_funders.push(msg.sender);
     }
@@ -79,5 +85,13 @@ contract FundMe {
 
     function getAddressToAmountFunded(address funderAddress) public view returns (uint256) {
         return s_addressToAmountFunded[funderAddress];
+    }
+
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return s_priceFeed;
+    }
+
+    function getVersion() public view returns (uint256) {
+        return s_priceFeed.version();
     }
 }
