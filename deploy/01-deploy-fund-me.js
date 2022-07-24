@@ -20,7 +20,8 @@ module.exports = async () => {
     const fundMe = await deploy("FundMe", {
         from: deployer,
         args: [ethUsdPriceAddress],
-        log: true
+        log: true,
+        wait: network.config.blockConfirmations || 1
     })
 
     log(`FundMe deployed at ${fundMe.address}`)

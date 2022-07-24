@@ -15,7 +15,7 @@ module.exports = async () => {
         await deploy("MockV3Aggregator", {
             from: deployer,
             args: [DECIMALS, INITIAL_PRICE],
-            log: true 
+            log: true,
         })
     }
 
