@@ -61,6 +61,7 @@ describe("Fund Me Unit Test", async () => {
             assert.equal(endingFundMeBalance, 0)
             assert.equal(startingFundMeBalance.add(startingDeployerBalance).toString(), endingDeployerBalance.add(gasCost).toString())
         })
+
         it("allows us to withdraw with multiple funders", async () => {
             // Arrange
             const accounts = await ethers.getSigners()
@@ -89,12 +90,14 @@ describe("Fund Me Unit Test", async () => {
                 assert.equal(await fundMe.getAddressToAmountFunded(accounts[i].address), 0)
             }
         })
+
         it("only allows owner to withdraw funds", async () => {
             const accounts = await ethers.getSigners()
             const attacker = accounts[1]
             const attackerConnectedContract = await fundMe.connect(attacker)
             expect(attackerConnectedContract.withdraw()).to.be.revertedWith("FundMe__NotOwner")
         })
+
         it("cheaper withdraw testing...", async () => {
             // Arrange
             const accounts = await ethers.getSigners()
@@ -112,6 +115,7 @@ describe("Fund Me Unit Test", async () => {
             const gasCost = gasUsed.mul(effectiveGasPrice);
             const endingFundMeBalance = await fundMe.provider.getBalance(fundMe.address)
             const endingDeployerBalance = await fundMe.provider.getBalance(deployer)
+            
             // Assert
             assert.equal(endingFundMeBalance, 0)
             assert.equal(startingFundMeBalance.add(startingDeployerBalance).toString(), endingDeployerBalance.add(gasCost).toString())
